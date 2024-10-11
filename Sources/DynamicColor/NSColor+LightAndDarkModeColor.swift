@@ -15,10 +15,28 @@ extension NSColor {
     ///   - lightMode: The color to use when the `userInterfaceStyle` is `aqua` or unknown
     ///   - darkMode: The color to use when the `userInterfaceStyle` is `darkAqua`
     public convenience init(lightMode: Color, darkMode: Color) {
-        self.init(
-            lightMode: NSColor(lightMode),
-            darkMode: NSColor(darkMode)
-        )
+        self.init(pallet: .init(
+            normalContrast: .init(
+                any: lightMode,
+                light: lightMode,
+                dark: darkMode),
+            highContrast: nil
+        ))
+    }
+    
+    /// A wrapper around the `init(dynamicProvider:)` function to make
+    /// setting the various colors for the various modes.
+    /// Ex: Normal contrast light mode, or high contrast dark mode.
+    ///
+    /// - Parameters:
+    ///   - pallet: The color pallet to use for the defined color
+    public convenience init(pallet: ColorsPallet) {
+        self.init(name: nil) { appearance in
+            let contrast = ColorContrast(appearance)
+            let luminosity = ColorLuminosity(appearance)
+            let color = pallet.colorFor(contrast: contrast, luminosity: luminosity)
+            return NSColor(color)
+        }
     }
     
     /// A wrapper around the `init(name:, dynamicProvider:)` function to make
@@ -29,21 +47,10 @@ extension NSColor {
     ///   - lightMode: The color to use when the `userInterfaceStyle` is `aqua`  or unknown
     ///   - darkMode: The color to use when the `userInterfaceStyle` is `darkAqua`
     public convenience init(lightMode: NSColor, darkMode: NSColor) {
-        self.init(name: nil) { appearance in
-            switch appearance.name {
-            case .aqua,
-                    .vibrantLight,
-                    .accessibilityHighContrastAqua,
-                    .accessibilityHighContrastVibrantLight:
-                return lightMode
-            case .darkAqua,
-                    .vibrantDark,
-                    .accessibilityHighContrastDarkAqua,
-                    .accessibilityHighContrastVibrantDark:
-                return darkMode
-            default: return lightMode
-            }
-        }
+        self.init(pallet: .init(
+            normalContrast: .init(light: Color(lightMode), dark: Color(darkMode)),
+            highContrast: nil
+        ))
     }
 }
 

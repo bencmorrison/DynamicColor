@@ -28,8 +28,13 @@ extension Color {
     ///   - lightMode: The color to use when the `userInterfaceStyle` is light mode or unknown
     ///   - darkMode: The color to use when the `userInterfaceStyle` is dark mode
     public init(lightMode: Color, darkMode: Color) {
-        self.init(
-            PlatformColor(lightMode: lightMode, darkMode: darkMode)
-        )
+        self.init(pallet: .init(
+            normalContrast: .init(light: lightMode, dark: darkMode),
+            highContrast: nil
+        ))
+    }
+    
+    public init(pallet: ColorsPallet) {
+        self.init(PlatformColor(pallet: pallet))
     }
 }
